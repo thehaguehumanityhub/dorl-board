@@ -14,7 +14,7 @@ Local test without network:  python build.py --board-json board.json --offline
 """
 import argparse, datetime as dt, html, json, os, re, sys, time
 from html.parser import HTMLParser
-from urllib.parse import urlparse, unquote
+from urllib.parse import urlparse, unquote, quote
 from urllib.request import Request, urlopen
 
 BOARD_ID = "Pl5oOXPv"
@@ -76,7 +76,19 @@ def find_start_date(blocks):
             elif isinstance(o, list): stack.extend(o)
     return ""
 
+def youtube_oembed(url):
+    api = "https://www.youtube.com/oembed?format=json&url=" + quote(url, safe="")
+    try:
+        with urlopen(Request(api, headers={"User-Agent": UA}), timeout=15) as r:
+            j = json.load(r)
+        return {"ok": True, "oembed": True, "title": j.get("title", "")[:160],
+                "author": j.get("author_name", "")[:60], "site": "YouTube", "desc": "", "event_date": ""}
+    except Exception as e:
+        return {"ok": False, "oembed": True, "error": str(e)[:120]}
+
 def enrich(url):
+    if "youtube.com" in url or "youtu.be" in url:
+        return youtube_oembed(url)
     try:
         with urlopen(Request(url, headers={"User-Agent": UA, "Accept-Language": "en,nl;q=0.8"}), timeout=15) as r:
             if "html" not in r.headers.get("Content-Type", ""): return {"ok": True}
@@ -111,6 +123,21 @@ def from_url(url):
              "linkedin.com": "LinkedIn post"}.get(host, "Link from " + host)
     return t[0].upper() + t[1:], host
 
+def split_post(text):
+    """First sentence of a LinkedIn post as title, the rest as summary."""
+    t = re.sub(r"[ \t]+", " ", text or "").strip()
+    if not t: return "", ""
+    flat = re.sub(r"\s+", " ", t)
+    m = re.match(r"(.{20,180}?[.!?][\"\u201d\u2019)]?)(\s|$)", flat)
+    if m:
+        first, rest = m.group(1), flat[m.end():].strip()
+    else:
+        cut = flat[:120].rsplit(" ", 1)[0]
+        first, rest = cut + "\u2026", "\u2026" + flat[len(cut):].strip()
+    if len(rest) > 220: rest = rest[:220].rsplit(" ", 1)[0]
+    if rest and not re.search(r"[.!?\u2026\"\u201d)]$", rest): rest += "\u2026"
+    return first.strip(), rest
+
 def created(card_id):
     return dt.datetime.fromtimestamp(int(card_id[:8], 16), dt.timezone.utc).strftime("%Y-%m-%d")
 
@@ -144,19 +171,31 @@ def main():
             if m:
                 url = m.group(1); title, host = from_url(url); desc = ""
                 meta = cache.get(url)
-                stale = meta and not meta.get("ok") and meta.get("tries", 0) < 3
+                stale = meta and ((not meta.get("ok") and meta.get("tries", 0) < 3)
+                                  or ("youtube" in url and not meta.get("oembed")))
                 if not a.offline and (meta is None or stale):
                     meta = enrich(url); meta["tries"] = (cache.get(url) or {}).get("tries", 0) + 1
                     cache[url] = meta; fetched += 1; time.sleep(1)
                 mt = (meta or {}).get("title", "")
+                if "linkedin.com" in url and meta and meta.get("ok"):
+                    author = mt.rsplit(" | ", 1)[1].strip() if " | " in mt else ""
+                    first, rest = split_post(meta.get("desc", ""))
+                    if first: title = first
+                    desc = rest
+                    host = "LinkedIn post by " + author if author else "LinkedIn post"
+                    mt = ""
+                elif "youtube" in url and meta and meta.get("ok") and meta.get("title"):
+                    title = meta["title"]
+                    host = "YouTube video by " + meta["author"] if meta.get("author") else "YouTube video"
+                    mt = ""
                 usable = (meta and meta.get("ok") and mt and not JUNK_TITLES.match(mt)
                           and not mt.startswith("#") and "linkedin.com" not in url)
                 if usable:
                     title = re.sub(r"[_]+", " ", re.sub(r"\.pdf$", "", mt, flags=re.I)).strip()
                     desc = meta.get("desc", "")
                     if meta.get("site"): host = meta["site"]
-                elif "linkedin.com" in url:
-                    host = "LinkedIn"
+                elif "linkedin.com" in url and host == urlparse(url).netloc.replace("www.", ""):
+                    host = "LinkedIn post"
             else:
                 url, host, title, desc = c["shortUrl"], "Collective note", name, clean(c.get("desc"))
                 mm = re.search(r"https?://[^\s)\]]+", c.get("desc") or "")
@@ -167,7 +206,7 @@ def main():
             items.append({
                 "title": title, "url": url, "host": host,
                 "favicon": raw_host if raw_host != "trello.com" else "",
-                "kind": "PDF" if urlparse(url).path.lower().endswith(".pdf") else ("Video" if "youtube" in raw_host else ""),
+                "kind": "PDF" if urlparse(url).path.lower().endswith(".pdf") else ("Video" if "youtube" in raw_host and not host.startswith("YouTube video") else ""),
                 "lang": "NL" if raw_host.endswith(NL_HOSTS) else "",
                 "desc": desc, "done": bool(c.get("dueComplete")),
                 "added": created(c["id"]), "event": (cache.get(url) or {}).get("event_date", ""),
