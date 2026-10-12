@@ -82,7 +82,7 @@
  "https://futurepolis.substack.com/p/video-how-the-citizens-of-the-future": {
   "error": "HTTP Error 403: Forbidden",
   "ok": false,
-  "tries": 2
+  "tries": 3
  },
  "https://globaldemocracycoalition.org/wp-content/uploads/2026/03/DNA-Research-Brief-2026.pdf?utm_source=People&utm_campaign=238fa98182-EMAIL_CAMPAIGN_2026_03_25_06_54&utm_medium=email&utm_term=0_2ca5131d80-238fa98182-": {
   "ok": true,
@@ -155,7 +155,7 @@
  "https://thehill.com/homenews/administration/5600355-massachusetts-judge-resigns-trump/": {
   "error": "HTTP Error 403: Forbidden",
   "ok": false,
-  "tries": 2
+  "tries": 3
  },
  "https://udspace.udel.edu/items/95bf3dbb-9990-483c-9040-197f42060df1": {
   "desc": "Anti-democratic movements are surging around the world, threatening to undermine elections and replace them with oligarchy. Pro-democracy movements mainly focus on defending elections, even though most people think that elections alone are inadequate. While el",
@@ -200,12 +200,12 @@
  "https://www.democratiemonitor.nl/wp-content/uploads/2025/10/Carousel-website-Lancering-Monitor-Democratie-Incidenten-Democratie-Monitor.pdf": {
   "error": "HTTP Error 404: Not Found",
   "ok": false,
-  "tries": 2
+  "tries": 3
  },
  "https://www.democratiemonitor.nl/wp-content/uploads/2025/12/Notitie-Naar-een-sterkere-democratie-Democratie-Monitor-webversie-1.pdf": {
   "error": "HTTP Error 404: Not Found",
   "ok": false,
-  "tries": 2
+  "tries": 3
  },
  "https://www.devissues.nl/reversing-new-wave-autocratization": {
   "desc": "",
@@ -218,7 +218,7 @@
  "https://www.government.nl/ministries/ministry-of-foreign-affairs/documents/policy-notes/2022/10/15/grant-policy-framework-femfocus-2026-2030": {
   "error": "HTTP Error 404: Not Found",
   "ok": false,
-  "tries": 2
+  "tries": 3
  },
  "https://www.horizons-mag.ch/2026/06/04/eight-creative-ideas-for-more-democracy/": {
   "desc": "Horizons (EN) - Testing democracy",
@@ -333,19 +333,23 @@
   "tries": 1
  },
  "https://www.youtube.com/watch?v=D8xBYHKx5dQ": {
+  "author": "Nederlandse Democratie Coalitie",
   "desc": "",
   "event_date": "",
+  "oembed": true,
   "ok": true,
-  "site": "",
-  "title": "",
-  "tries": 1
+  "site": "YouTube",
+  "title": "Lobby, algoritmes, democratie en.. indianen",
+  "tries": 2
  },
  "https://www.youtube.com/watch?v=lknbeYxP-n0": {
+  "author": "The Hague Reflections",
   "desc": "",
   "event_date": "",
+  "oembed": true,
   "ok": true,
-  "site": "",
-  "title": "",
-  "tries": 1
+  "site": "YouTube",
+  "title": "Rule of Law | The Hague Reflections",
+  "tries": 2
  }
 }
