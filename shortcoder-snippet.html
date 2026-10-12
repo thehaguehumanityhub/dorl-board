@@ -1,0 +1,23 @@
+<!-- Shortcoder shortcode "dorl-board". Insert on a page with [sc name="dorl-board"] -->
+<div id="dorl-board-mount"><p style="padding:24px;text-align:center">Loading the Democracy and Rule of Law board&hellip;</p></div>
+<script>
+(function () {
+  var mount = document.getElementById('dorl-board-mount');
+  var src = 'https://cdn.jsdelivr.net/gh/thehaguehumanityhub/dorl-board@main/dorl-embed.html';
+  fetch(src, { cache: 'no-cache' })
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
+    .then(function (html) {
+      mount.innerHTML = html;
+      // Scripts inserted via innerHTML do not run, so re-create them
+      mount.querySelectorAll('script').forEach(function (old) {
+        var s = document.createElement('script');
+        s.textContent = old.textContent;
+        old.parentNode.replaceChild(s, old);
+      });
+    })
+    .catch(function () {
+      mount.innerHTML = '<p style="padding:24px;text-align:center">The board could not be loaded right now. ' +
+        '<a href="https://trello.com/b/Pl5oOXPv/democracy-and-rule-of-law" target="_blank" rel="noopener">View it on Trello</a>.</p>';
+    });
+})();
+</script>
