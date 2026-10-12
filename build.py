@@ -186,6 +186,8 @@ def main():
                     mt = ""
                 elif "youtube" in url and meta and meta.get("ok") and meta.get("title"):
                     title = meta["title"]
+                    if meta.get("author"):
+                        title = re.sub(r"\s*[|\-\u2013\u2014:]\s*" + re.escape(meta["author"]) + r"\s*$", "", title) or meta["title"]
                     host = "YouTube video by " + meta["author"] if meta.get("author") else "YouTube video"
                     mt = ""
                 usable = (meta and meta.get("ok") and mt and not JUNK_TITLES.match(mt)
