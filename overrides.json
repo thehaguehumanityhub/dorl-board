@@ -1,3 +1,9 @@
 {
-  "_help": "Fix a card's title or summary when the source site blocks metadata. Key = the code in the card's Trello link (trello.com/c/CS1qzpDD -> CS1qzpDD). Example: \"CS1qzpDD\": {\"title\": \"Real event title\"}"
+  "_help": "Fix a card's title or summary when the source site blocks metadata. Key = the code in the card's Trello link (trello.com/c/CS1qzpDD -> CS1qzpDD). Example: \"CS1qzpDD\": {\"title\": \"Real event title\"}",
+  "tjMRs2RD": {
+    "title": "Said case: ICC Trial Chamber VI to deliver trial judgment on 23 September 2026"
+  },
+  "I9TzexP5": {
+    "title": "Tweede Kamer debate: Staat van de rechtsstaat (24 June 2026)"
+  }
 }

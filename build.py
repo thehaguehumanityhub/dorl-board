@@ -22,6 +22,8 @@ EXCLUDE_LISTS = {"Collective's Shared Resources"}   # Signal invite + Drive link
 NEW_DAYS = 7
 NL_HOSTS = ("democratiemonitor.nl", "democratiecoalitie.nl", "wrr.nl", "tweedekamer.nl",
             "coc.nl", "universiteitleiden.nl")
+# Titles returned by bot-protection or consent pages, never real content
+JUNK_TITLES = re.compile(r"^(gcore|just a moment|attention required|access denied|youtube|debat direct|403|404|error)\b", re.I)
 UA = "Mozilla/5.0 (compatible; THHH-board-bot/1.0; +https://www.humanityhub.org)"
 HERE = os.path.dirname(os.path.abspath(__file__))
 CACHE = os.path.join(HERE, "data", "metadata.json")
@@ -146,9 +148,15 @@ def main():
                 if not a.offline and (meta is None or stale):
                     meta = enrich(url); meta["tries"] = (cache.get(url) or {}).get("tries", 0) + 1
                     cache[url] = meta; fetched += 1; time.sleep(1)
-                if meta and meta.get("ok"):
-                    title = meta.get("title") or title; desc = meta.get("desc", "")
+                mt = (meta or {}).get("title", "")
+                usable = (meta and meta.get("ok") and mt and not JUNK_TITLES.match(mt)
+                          and not mt.startswith("#") and "linkedin.com" not in url)
+                if usable:
+                    title = re.sub(r"[_]+", " ", re.sub(r"\.pdf$", "", mt, flags=re.I)).strip()
+                    desc = meta.get("desc", "")
                     if meta.get("site"): host = meta["site"]
+                elif "linkedin.com" in url:
+                    host = "LinkedIn"
             else:
                 url, host, title, desc = c["shortUrl"], "Collective note", name, clean(c.get("desc"))
                 mm = re.search(r"https?://[^\s)\]]+", c.get("desc") or "")
